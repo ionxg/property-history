@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2 (2026-10-05)
+
+### Fixed
+- `m²` in model replies printed as `m?` on Windows consoles. Output is now always UTF-8.
+
+### Results
+- First real run of the model step: **26/26** correct (rules only: 24/26), 6 API calls,
+  2,655 prompt + 339 completion tokens. Same score on a second run. Added to the README.
+
 ## 0.2.1 (2026-10-05)
 
 ### Added

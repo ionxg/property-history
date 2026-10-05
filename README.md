@@ -43,8 +43,23 @@ Every mistake is in a low-confidence field, which is the point of the confidence
 record is the council roll, but the council data predates an extension. The notes on the valuer's
 record say so. Rules can't read notes, and a model can.
 
-`python -m reconcile evaluate --llm` runs the same check with the model step and reports
-calls and tokens used, so accuracy can be weighed against cost.
+With the model step on (DeepSeek, `deepseek-chat`, temperature 0):
+
+```
+$ python -m reconcile evaluate --llm
+rules + model: 26/26 correct (100%)
+
+  high     9/9 correct
+  medium   11/11 correct
+  low      6/6 correct
+
+Model usage: 6 calls, 2655 prompt tokens, 339 completion tokens
+```
+
+The model fixed both rule mistakes and changed nothing the rules already had right; the same score
+came back on a second run. Only the 6 low-confidence fields are sent, so the other 20 cost nothing.
+At 12 Kelburn Parade it chose 138 m² over 120 and 135, citing "the consented 2023 rear extension"
+from the valuer's note.
 
 **Caveat:** I wrote the answer key and the data together, so these numbers show the method works,
 not how it would do on real records. The next step would be a few hundred real records and an answer

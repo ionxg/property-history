@@ -118,6 +118,11 @@ def ask(args):
 
 
 def main():
+    # Windows consoles default to a legacy code page, which turns "m²" in model replies into "m?".
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(prog="reconcile")
     commands = parser.add_subparsers(dest="command", required=True)
 
