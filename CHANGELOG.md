@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 (2026-10-05)
+
+### Added
+- Tests run on every push with GitHub Actions: Ubuntu and Windows, Python 3.10 and 3.13. Badge in the README.
+- `evaluate --save PATH` writes every checked field (expected, chosen, confidence, who decided,
+  reason) and the token usage to JSON.
+- `results/rules-only.json` and `results/deepseek-run.json`: saved records of both runs, so the
+  results can be checked without an API key.
+
 ## 0.2.2 (2026-10-05)
 
 ### Fixed

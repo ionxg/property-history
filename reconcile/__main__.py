@@ -7,6 +7,7 @@
 """
 
 import argparse
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -76,12 +77,17 @@ def evaluate(args):
     total = correct = 0
     by_confidence = {}
     mistakes = []
+    checked = []
     for key, fields in truth.items():
         for field, (expected, why) in fields.items():
             result = history.get(key, {}).get(field)
             got = result["value"] if result else None
             confidence = result["confidence"] if result else "missing"
             ok = got == expected
+            checked.append({"property": key, "field": field, "expected": expected, "got": got,
+                            "correct": ok, "confidence": confidence,
+                            "decided_by": result["decided_by"] if result else None,
+                            "reason": result["reason"] if result else None})
 
             total += 1
             correct += ok
@@ -101,6 +107,21 @@ def evaluate(args):
         print("\n".join(mistakes))
     if args.llm:
         print(f"\nModel usage: {usage}")
+
+    if args.save:
+        record = {
+            "run_at": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+            "mode": mode,
+            "model": llm.MODEL if args.llm else None,
+            "correct": correct,
+            "total": total,
+            "usage": vars(usage) if args.llm else None,
+            "fields": checked,
+        }
+        Path(args.save).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.save).write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+                                   encoding="utf-8")
+        print(f"\nSaved to {args.save}")
 
 
 def ask(args):
@@ -136,6 +157,7 @@ def main():
 
     p = commands.add_parser("evaluate", help="score against the hand-checked answers")
     p.add_argument("--llm", action="store_true", help="ask the model about low-confidence fields")
+    p.add_argument("--save", metavar="PATH", help="write every checked field and the usage to a JSON file")
     p.set_defaults(run=evaluate)
 
     p = commands.add_parser("ask", help="ask a plain-language question about a property")

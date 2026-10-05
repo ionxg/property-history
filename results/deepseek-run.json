@@ -1,0 +1,275 @@
+{
+  "run_at": "2026-10-05T21:59:11+13:00",
+  "mode": "rules + model",
+  "model": "deepseek-chat",
+  "correct": 26,
+  "total": 26,
+  "usage": {
+    "calls": 6,
+    "failures": 0,
+    "prompt_tokens": 2655,
+    "completion_tokens": 348
+  },
+  "fields": [
+    {
+      "property": "12 kelburn parade",
+      "field": "bedrooms",
+      "expected": 4,
+      "got": 4,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "12 kelburn parade",
+      "field": "floor_area_m2",
+      "expected": 138,
+      "got": 138,
+      "correct": true,
+      "confidence": "low",
+      "decided_by": "model",
+      "reason": "The valuer's on-site measurement of 138 m² is the most current and explicitly accounts for the consented 2023 rear extension, while the council's 120 m² predates it and the listing's 135 m² is less authoritative."
+    },
+    {
+      "property": "12 kelburn parade",
+      "field": "land_area_m2",
+      "expected": 450,
+      "got": 450,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "12 kelburn parade",
+      "field": "year_built",
+      "expected": 1925,
+      "got": 1925,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "12 kelburn parade",
+      "field": "last_sale_price",
+      "expected": 890000,
+      "got": 890000,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 2 sources agree (sale of 2019-03-14)"
+    },
+    {
+      "property": "2/14 aro street",
+      "field": "bedrooms",
+      "expected": 2,
+      "got": 2,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 3 sources agree"
+    },
+    {
+      "property": "2/14 aro street",
+      "field": "floor_area_m2",
+      "expected": 68,
+      "got": 68,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "2/14 aro street",
+      "field": "year_built",
+      "expected": 1978,
+      "got": 1978,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 2 sources agree"
+    },
+    {
+      "property": "2/14 aro street",
+      "field": "last_sale_price",
+      "expected": 615000,
+      "got": 615000,
+      "correct": true,
+      "confidence": "low",
+      "decided_by": "model",
+      "reason": "The council record reflects the final settled sale price, while the valuer's note explicitly states its figure was written before settlement and may differ."
+    },
+    {
+      "property": "7 brooklyn road",
+      "field": "bedrooms",
+      "expected": 3,
+      "got": 3,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 3 sources agree"
+    },
+    {
+      "property": "7 brooklyn road",
+      "field": "land_area_m2",
+      "expected": 600,
+      "got": 600,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "7 brooklyn road",
+      "field": "last_sale_price",
+      "expected": 985000,
+      "got": 985000,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "only V003 records it (sale of 2025-09-30)"
+    },
+    {
+      "property": "45 oriental parade",
+      "field": "bedrooms",
+      "expected": 2,
+      "got": 2,
+      "correct": true,
+      "confidence": "low",
+      "decided_by": "model",
+      "reason": "The listing's third bedroom is a non-consented study without a window, so the council's count of 2 bedrooms is the accurate description."
+    },
+    {
+      "property": "45 oriental parade",
+      "field": "floor_area_m2",
+      "expected": 95,
+      "got": 95,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 2 sources agree"
+    },
+    {
+      "property": "45 oriental parade",
+      "field": "last_sale_price",
+      "expected": 1150000,
+      "got": 1150000,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "only C004 records it (sale of 2018-05-21)"
+    },
+    {
+      "property": "88 karori road",
+      "field": "bedrooms",
+      "expected": 5,
+      "got": 5,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "88 karori road",
+      "field": "floor_area_m2",
+      "expected": 192,
+      "got": 192,
+      "correct": true,
+      "confidence": "low",
+      "decided_by": "model",
+      "reason": "The valuer's on-site measurement after the 2024 extension reflects the property's current floor area, while the council record is outdated and the listing value is approximate."
+    },
+    {
+      "property": "88 karori road",
+      "field": "last_sale_price",
+      "expected": 1320000,
+      "got": 1320000,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "only V005 records it (sale of 2025-04-28)"
+    },
+    {
+      "property": "3 tinakori road",
+      "field": "bedrooms",
+      "expected": 3,
+      "got": 3,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 3 sources agree"
+    },
+    {
+      "property": "3 tinakori road",
+      "field": "floor_area_m2",
+      "expected": 105,
+      "got": 105,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "3 tinakori road",
+      "field": "year_built",
+      "expected": 1890,
+      "got": 1890,
+      "correct": true,
+      "confidence": "low",
+      "decided_by": "model",
+      "reason": "The council record provides a specific year_built of 1890, while the valuer's 1895 is explicitly approximate from style with no permit records, making the council value more reliable."
+    },
+    {
+      "property": "3 tinakori road",
+      "field": "last_sale_price",
+      "expected": 1040000,
+      "got": 1040000,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 2 sources agree (sale of 2020-10-09)"
+    },
+    {
+      "property": "21 rintoul street",
+      "field": "floor_area_m2",
+      "expected": 100,
+      "got": 100,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 3 sources agree"
+    },
+    {
+      "property": "21 rintoul street",
+      "field": "last_sale_price",
+      "expected": 820000,
+      "got": 820000,
+      "correct": true,
+      "confidence": "low",
+      "decided_by": "model",
+      "reason": "The council record reflects the final sale price recorded after the sale date, while the valuer's 805000 was explicitly noted as a pre-negotiation valuation."
+    },
+    {
+      "property": "5/30 the terrace",
+      "field": "floor_area_m2",
+      "expected": 48,
+      "got": 48,
+      "correct": true,
+      "confidence": "medium",
+      "decided_by": "rules",
+      "reason": "2 of 3 sources agree"
+    },
+    {
+      "property": "5/30 the terrace",
+      "field": "last_sale_price",
+      "expected": 420000,
+      "got": 420000,
+      "correct": true,
+      "confidence": "high",
+      "decided_by": "rules",
+      "reason": "all 2 sources agree (sale of 2023-06-30)"
+    }
+  ]
+}

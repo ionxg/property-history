@@ -1,5 +1,7 @@
 # property-history
 
+[![tests](https://github.com/ionxg/property-history/actions/workflows/tests.yml/badge.svg)](https://github.com/ionxg/property-history/actions/workflows/tests.yml)
+
 Property records from different sources rarely agree. A council roll, an old listing and a valuer's
 report can give three different floor areas for the same house, and an address can be written five
 ways. This tool lines those records up, settles each conflicting field, and says how sure it is and
@@ -47,6 +49,7 @@ With the model step on (DeepSeek, `deepseek-chat`, temperature 0):
 
 ```
 $ python -m reconcile evaluate --llm
+python -m reconcile evaluate --llm --save results/my-run.json   # keep a record of the run
 rules + model: 26/26 correct (100%)
 
   high     9/9 correct
@@ -60,6 +63,9 @@ The model fixed both rule mistakes and changed nothing the rules already had rig
 came back on a second run. Only the 6 low-confidence fields are sent, so the other 20 cost nothing.
 At 12 Kelburn Parade it chose 138 m² over 120 and 135, citing "the consented 2023 rear extension"
 from the valuer's note.
+
+Every checked field from both runs, with the value chosen and the reason, is saved in
+[`results/`](results/): `rules-only.json` and `deepseek-run.json`.
 
 **Caveat:** I wrote the answer key and the data together, so these numbers show the method works,
 not how it would do on real records. The next step would be a few hundred real records and an answer
@@ -91,6 +97,8 @@ reconcile/llm.py       DeepSeek calls, the guard on its answers, token counting
 reconcile/__main__.py  command line and evaluation
 tests/                 unit tests; the model is mocked
 data/                  synthetic records and the answer key
+results/               saved evaluation runs (every field, value, reason, token usage)
+.github/workflows/     tests run on every push (Ubuntu and Windows, Python 3.10 and 3.13)
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed between versions, and
