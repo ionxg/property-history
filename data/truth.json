@@ -2,7 +2,7 @@
   "_note": "Hand-checked answer key for the synthetic records. Each value is what a careful person would accept after reading every source, with the reason.",
   "12 kelburn parade": {
     "bedrooms": [4, "Listing and recent valuer inspection agree; council record predates a conversion"],
-    "floor_area_m2": [138, "Valuer measured on site most recently"],
+    "floor_area_m2": [138, "Valuer measured on site; the council area predates the 2023 extension"],
     "land_area_m2": [450, "Council title area is authoritative for land"],
     "year_built": [1925, "Council record"],
     "last_sale_price": [890000, "Council and valuer agree"]

@@ -9,6 +9,7 @@ answer stands, so the model can't invent a number.
 
 import json
 import os
+import urllib.error
 import urllib.request
 
 API_URL = "https://api.deepseek.com/chat/completions"
@@ -33,17 +34,25 @@ ASK_PROMPT = """Answer the question using only the property history below.
 Cite the record ids you used in square brackets. If the history doesn't
 contain the answer, say so plainly rather than guessing.
 
-Property history (JSON):
+Reconciled history (JSON):
 {history}
+
+Original records, including notes (one JSON object per line):
+{records}
 
 Question: {question}"""
 
 
+class ModelError(Exception):
+    """The API call failed: bad key, rate limit, network, or a malformed reply."""
+
+
 class Usage:
-    """Running count of calls and tokens, so cost can be reported."""
+    """Running count of calls, failures and tokens, so cost can be reported."""
 
     def __init__(self):
         self.calls = 0
+        self.failures = 0
         self.prompt_tokens = 0
         self.completion_tokens = 0
 
@@ -53,8 +62,11 @@ class Usage:
         self.completion_tokens += usage.get("completion_tokens", 0)
 
     def __str__(self):
-        return (f"{self.calls} calls, {self.prompt_tokens} prompt tokens, "
+        text = (f"{self.calls} calls, {self.prompt_tokens} prompt tokens, "
                 f"{self.completion_tokens} completion tokens")
+        if self.failures:
+            text += f", {self.failures} failed calls"
+        return text
 
 
 def available():
@@ -78,12 +90,21 @@ def chat(prompt, usage=None, json_mode=False):
             "Authorization": f"Bearer {os.environ['DEEPSEEK_API_KEY']}",
         },
     )
-    with urllib.request.urlopen(request, timeout=60) as response:
-        reply = json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            reply = json.load(response)
+        content = reply["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as e:
+        hint = " (check DEEPSEEK_API_KEY)" if e.code == 401 else ""
+        raise ModelError(f"HTTP {e.code} from the API{hint}") from e
+    except (urllib.error.URLError, TimeoutError) as e:
+        raise ModelError(f"could not reach the API: {e}") from e
+    except (json.JSONDecodeError, KeyError, IndexError) as e:
+        raise ModelError("unexpected reply from the API") from e
 
     if usage is not None:
         usage.add(reply.get("usage", {}))
-    return reply["choices"][0]["message"]["content"]
+    return content
 
 
 def format_records(records):
@@ -93,14 +114,36 @@ def format_records(records):
     return "\n".join(lines)
 
 
+def match_candidate(value, candidates):
+    """Return the candidate the model meant, or None.
+
+    Models sometimes send 192 as "192" or 192.0, which is fine. They can also
+    send true, which Python would treat as equal to 1, so booleans are refused.
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    for candidate in candidates:
+        if isinstance(candidate, int):
+            try:
+                if float(value) == candidate:
+                    return candidate
+            except (TypeError, ValueError):
+                continue
+        elif str(value).strip() == candidate:
+            return candidate
+    return None
+
+
 def check_choice(reply_text, candidates):
     """Return (value, reason, source_ids) if the reply is usable, else None."""
     try:
         reply = json.loads(reply_text)
     except json.JSONDecodeError:
         return None
-    value = reply.get("value")
-    if value is None or value not in candidates:
+    if not isinstance(reply, dict):
+        return None
+    value = match_candidate(reply.get("value"), candidates)
+    if value is None:
         return None
     return value, reply.get("reason", ""), reply.get("source_ids", [])
 
@@ -112,11 +155,20 @@ def second_opinion(records, field, result, usage=None):
         candidates=result["candidates"],
         records=format_records(records),
     )
-    choice = check_choice(chat(prompt, usage, json_mode=True), result["candidates"])
+    try:
+        reply = chat(prompt, usage, json_mode=True)
+    except ModelError as e:
+        if usage is not None:
+            usage.failures += 1
+        return {**result, "reason": result["reason"] + f"; model call failed ({e})"}
+
+    choice = check_choice(reply, result["candidates"])
     if choice is None:
         return {**result, "reason": result["reason"] + "; model gave no usable answer"}
 
     value, reason, source_ids = choice
+    known_ids = {r["record_id"] for r in records}
+    source_ids = [i for i in source_ids if i in known_ids]
     return {
         **result,
         "value": value,
@@ -126,6 +178,10 @@ def second_opinion(records, field, result, usage=None):
     }
 
 
-def ask(question, history, usage=None):
-    prompt = ASK_PROMPT.format(history=json.dumps(history, indent=2), question=question)
+def ask(question, history, records, usage=None):
+    prompt = ASK_PROMPT.format(
+        history=json.dumps(history, indent=2),
+        records=format_records(records),
+        question=question,
+    )
     return chat(prompt, usage)

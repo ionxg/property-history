@@ -1,8 +1,9 @@
 """Command line.
 
-  python -m reconcile history "12 Kelburn Pde"   show one property's reconciled record
-  python -m reconcile evaluate [--llm]           score against data/truth.json
-  python -m reconcile ask "question" --address "..."   plain-language question (needs a key)
+  python -m reconcile list                               every property and its records
+  python -m reconcile history "12 Kelburn Pde" [--llm]   one property's reconciled record
+  python -m reconcile evaluate [--llm]                   score against data/truth.json
+  python -m reconcile ask "question" --address "..."     plain-language question (needs a key)
 """
 
 import argparse
@@ -10,23 +11,55 @@ import json
 import sys
 from pathlib import Path
 
-from . import address_key, build_history, llm, load_records
+from . import address_key, build_history, llm, load_records, resolve_with_model, sales_history
+from .records import group_by_property
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 
 
-def show_history(args):
-    key = address_key(args.address)
+def records_for(address):
+    key = address_key(address)
+    if key is None:
+        sys.exit(f"Couldn't read '{address}' as an address (needs a number and a street type).")
     records = [r for r in load_records(DATA / "records.csv") if r["key"] == key]
     if not records:
-        sys.exit(f"No records match '{args.address}' (looked for '{key}').")
+        sys.exit(f"No records match '{address}' (looked for '{key}'). "
+                 f"Run 'python -m reconcile list' to see what's there.")
+    return key, records
 
+
+def warn_unmatched(unmatched):
+    for r in unmatched:
+        print(f"warning: {r['record_id']} not matched to a property: '{r['address']}'",
+              file=sys.stderr)
+
+
+def list_properties(args):
+    groups, unmatched = group_by_property(load_records(DATA / "records.csv"))
+    for key, group in sorted(groups.items()):
+        print(f"  {key:24} {', '.join(r['record_id'] for r in group)}")
+    warn_unmatched(unmatched)
+
+
+def show_history(args):
+    key, records = records_for(args.address)
     usage = llm.Usage()
-    history = build_history(records, use_llm=args.llm, usage=usage)[key]
+    history = resolve_with_model(records, use_llm=args.llm, usage=usage)
+
     print(f"{key}  ({len(records)} records: {', '.join(r['record_id'] for r in records)})\n")
     for field, result in history.items():
         print(f"  {field:16} {str(result['value']):12} {result['confidence']:7} "
               f"[{result['decided_by']}] {result['reason']}")
+        if result["confidence"] == "low":
+            print(f"  {'':16} candidates: {result['candidates']}")
+
+    sales = sales_history(records)
+    if sales:
+        print("\n  Sales the sources mention:")
+        for sale in sales:
+            prices = "; ".join(f"${price:,} ({', '.join(ids)})"
+                               for price, ids in sale["prices"].items())
+            print(f"    {sale['date']}  {prices or 'price not recorded'}")
     if args.llm:
         print(f"\nModel usage: {usage}")
 
@@ -37,7 +70,8 @@ def evaluate(args):
     records = load_records(DATA / "records.csv")
 
     usage = llm.Usage()
-    history = build_history(records, use_llm=args.llm, usage=usage)
+    history, unmatched = build_history(records, use_llm=args.llm, usage=usage)
+    warn_unmatched(unmatched)
 
     total = correct = 0
     by_confidence = {}
@@ -72,19 +106,23 @@ def evaluate(args):
 def ask(args):
     if not llm.available():
         sys.exit("Set DEEPSEEK_API_KEY to ask questions.")
-    key = address_key(args.address)
-    records = [r for r in load_records(DATA / "records.csv") if r["key"] == key]
-    if not records:
-        sys.exit(f"No records match '{args.address}'.")
+    key, records = records_for(args.address)
     usage = llm.Usage()
-    history = build_history(records, use_llm=True, usage=usage)
-    print(llm.ask(args.question, history, usage))
+    history = resolve_with_model(records, use_llm=True, usage=usage)
+    history["sales"] = sales_history(records)
+    try:
+        print(llm.ask(args.question, history, records, usage))
+    except llm.ModelError as e:
+        sys.exit(f"Model call failed: {e}")
     print(f"\nModel usage: {usage}")
 
 
 def main():
     parser = argparse.ArgumentParser(prog="reconcile")
     commands = parser.add_subparsers(dest="command", required=True)
+
+    p = commands.add_parser("list", help="every property and the records matched to it")
+    p.set_defaults(run=list_properties)
 
     p = commands.add_parser("history", help="show one property's reconciled record")
     p.add_argument("address")

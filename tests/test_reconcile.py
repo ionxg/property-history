@@ -6,7 +6,7 @@ from unittest import mock
 from reconcile import build_history, llm, load_records
 from reconcile.llm import check_choice
 from reconcile.records import address_key
-from reconcile.rules import resolve_field
+from reconcile.rules import resolve_field, resolve_last_sale, sales_history
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 
@@ -31,6 +31,14 @@ class AddressKeyTest(unittest.TestCase):
 
     def test_no_street_type(self):
         self.assertIsNone(address_key("somewhere in Wellington"))
+
+    def test_street_type_word_inside_the_name(self):
+        self.assertEqual(address_key("1 Parade Road Kelburn"), "1 parade road")
+        self.assertEqual(address_key("9 Terrace Rd"), "9 terrace road")
+
+    def test_needs_a_street_number(self):
+        self.assertIsNone(address_key("Kelburn Parade"))
+        self.assertEqual(address_key("12A Kelburn Pde"), "12a kelburn parade")
 
 
 class RulesTest(unittest.TestCase):
@@ -57,6 +65,37 @@ class RulesTest(unittest.TestCase):
         self.assertIsNone(resolve_field([record("A", "2025-06-01", bedrooms=None)], "bedrooms"))
 
 
+class SaleTest(unittest.TestCase):
+    def sale(self, record_id, recorded_on, date, price):
+        return record(record_id, recorded_on, last_sale_date=date, last_sale_price=price)
+
+    def test_date_and_price_come_from_the_same_sale(self):
+        records = [self.sale("A", "2025-01-01", "2020-01-01", 500),
+                   self.sale("B", "2024-01-01", "2023-01-01", 700),
+                   self.sale("C", "2023-01-01", "2020-01-01", 500)]
+        result = resolve_last_sale(records)
+        self.assertEqual(result["last_sale_date"]["value"], "2023-01-01")
+        self.assertEqual(result["last_sale_price"]["value"], 700)
+
+    def test_newer_sale_is_not_a_conflict(self):
+        records = [self.sale("C", "2025-07-01", "2012-04-03", 480000),
+                   self.sale("V", "2025-04-02", "2025-04-28", 1320000)]
+        result = resolve_last_sale(records)
+        self.assertEqual(result["last_sale_price"]["value"], 1320000)
+        self.assertEqual(result["last_sale_date"]["confidence"], "medium")
+
+    def test_single_source_is_not_high(self):
+        result = resolve_field([record("A", "2025-01-01", bedrooms=3)], "bedrooms")
+        self.assertEqual(result["confidence"], "medium")
+
+    def test_sales_history_keeps_every_sale(self):
+        records = [self.sale("C", "2025-07-01", "2016-11-30", 540000),
+                   self.sale("V", "2025-09-12", "2025-09-30", 985000),
+                   self.sale("L", "2025-09-01", None, None)]
+        history = sales_history(records)
+        self.assertEqual([s["date"] for s in history], ["2016-11-30", "2025-09-30"])
+
+
 class ModelGuardTest(unittest.TestCase):
     def test_accepts_a_candidate(self):
         reply = json.dumps({"value": 138, "reason": "measured", "source_ids": ["V001"]})
@@ -69,6 +108,14 @@ class ModelGuardTest(unittest.TestCase):
     def test_rejects_null_and_bad_json(self):
         self.assertIsNone(check_choice('{"value": null}', [1, 2]))
         self.assertIsNone(check_choice("not json", [1, 2]))
+        self.assertIsNone(check_choice("[192]", [192]))
+
+    def test_accepts_number_sent_as_text_or_float(self):
+        self.assertEqual(check_choice('{"value": "192"}', [160, 192])[0], 192)
+        self.assertEqual(check_choice('{"value": 192.0}', [160, 192])[0], 192)
+
+    def test_rejects_booleans(self):
+        self.assertIsNone(check_choice('{"value": true}', [1, 2]))
 
 
 class SecondOpinionTest(unittest.TestCase):
@@ -90,11 +137,27 @@ class SecondOpinionTest(unittest.TestCase):
             updated = llm.second_opinion(self.records, "floor_area_m2", result)
         self.assertEqual((updated["value"], updated["decided_by"]), (160, "rules"))
 
+    def test_failed_call_keeps_rules_and_counts_failure(self):
+        result = resolve_field(self.records, "floor_area_m2")
+        usage = llm.Usage()
+        with mock.patch.object(llm, "chat", side_effect=llm.ModelError("HTTP 401")):
+            updated = llm.second_opinion(self.records, "floor_area_m2", result, usage)
+        self.assertEqual((updated["value"], updated["decided_by"]), (160, "rules"))
+        self.assertEqual(usage.failures, 1)
+
+    def test_unknown_record_ids_are_dropped(self):
+        result = resolve_field(self.records, "floor_area_m2")
+        reply = json.dumps({"value": 192, "reason": "x", "source_ids": ["V", "Z999"]})
+        with mock.patch.object(llm, "chat", return_value=reply):
+            updated = llm.second_opinion(self.records, "floor_area_m2", result)
+        self.assertEqual(updated["sources"], ["V"])
+
 
 class SampleDataTest(unittest.TestCase):
     def test_every_record_matches_a_property(self):
-        history = build_history(load_records(DATA / "records.csv"))
+        history, unmatched = build_history(load_records(DATA / "records.csv"))
         self.assertEqual(len(history), 8)
+        self.assertEqual(unmatched, [])
 
 
 if __name__ == "__main__":

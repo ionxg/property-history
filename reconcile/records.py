@@ -25,7 +25,9 @@ def address_key(address):
     """Reduce an address to 'number street type', dropping suburb and city.
 
     '12 Kelburn Pde' and '12 Kelburn Parade, Kelburn' both become
-    '12 kelburn parade'. Returns None if no street type is found.
+    '12 kelburn parade'. The last street-type word is the one that counts, so
+    '1 Parade Road' stays '1 parade road'. Returns None if the address doesn't
+    start with a number or has no street type.
     """
     text = address.lower().replace(",", " ")
     text = re.sub(r"\s+", " ", text).strip()
@@ -33,10 +35,13 @@ def address_key(address):
     text = LONE_PREFIX.sub("", text)
 
     words = text.split(" ")
-    for i, word in enumerate(words):
-        if i > 0 and word in STREET_TYPES:
-            return " ".join(words[:i] + [STREET_TYPES[word]])
-    return None
+    if not re.fullmatch(r"\d+[a-z]?(?:/\d+[a-z]?)?", words[0]):
+        return None
+    type_positions = [i for i, word in enumerate(words) if i > 0 and word in STREET_TYPES]
+    if not type_positions:
+        return None
+    i = type_positions[-1]
+    return " ".join(words[:i] + [STREET_TYPES[words[i]]])
 
 
 def parse_value(field, raw):
