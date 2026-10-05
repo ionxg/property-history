@@ -1,4 +1,6 @@
 import json
+import os
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -151,6 +153,21 @@ class SecondOpinionTest(unittest.TestCase):
         with mock.patch.object(llm, "chat", return_value=reply):
             updated = llm.second_opinion(self.records, "floor_area_m2", result)
         self.assertEqual(updated["sources"], ["V"])
+
+
+class EnvFileTest(unittest.TestCase):
+    def test_reads_key_and_skips_blanks_and_comments(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / ".env"
+            path.write_text('# comment
+TEST_RECONCILE_KEY="abc"
+TEST_RECONCILE_EMPTY=
+', encoding="utf-8")
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("TEST_RECONCILE_KEY", None)
+                llm.load_env_file(path)
+                self.assertEqual(os.environ["TEST_RECONCILE_KEY"], "abc")
+                self.assertNotIn("TEST_RECONCILE_EMPTY", os.environ)
 
 
 class SampleDataTest(unittest.TestCase):

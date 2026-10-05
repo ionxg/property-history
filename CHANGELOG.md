@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 (2026-10-05)
+
+### Added
+- The API key can go in a `.env` file at the project root (git-ignored; template in `.env.example`)
+  instead of a shell variable. A variable already set in the shell takes priority.
+
 ## 0.2.0 (2026-10-05)
 
 ### Fixed

@@ -1,6 +1,7 @@
 """Optional second opinion from an LLM on the fields the rules weren't sure about.
 
-Uses the DeepSeek chat API (OpenAI-compatible). Set DEEPSEEK_API_KEY to use it.
+Uses the DeepSeek chat API (OpenAI-compatible). Put DEEPSEEK_API_KEY in a .env
+file at the project root (see .env.example), or set it in the environment.
 
 The model is only allowed to choose one of the values the sources actually
 contain, or say it can't tell. Anything else is rejected and the rules'
@@ -11,7 +12,9 @@ import json
 import os
 import urllib.error
 import urllib.request
+from pathlib import Path
 
+ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 API_URL = "https://api.deepseek.com/chat/completions"
 MODEL = "deepseek-chat"
 
@@ -69,7 +72,22 @@ class Usage:
         return text
 
 
+def load_env_file(path=ENV_FILE):
+    """Read KEY=value lines from .env into the environment. Real environment variables win."""
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        value = value.strip().strip('"').strip("'")
+        if value:
+            os.environ.setdefault(name.strip(), value)
+
+
 def available():
+    load_env_file()
     return bool(os.environ.get("DEEPSEEK_API_KEY"))
 
 

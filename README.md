@@ -55,15 +55,13 @@ key written by someone who didn't write the rules.
 Python 3.10+ and nothing to install.
 
 ```
-python -m unittest                                  # 24 tests, no API key needed
+python -m unittest                                  # 25 tests, no API key needed
 python -m reconcile list                            # every property and its records
 python -m reconcile evaluate                        # rules only
 python -m reconcile history "88 Karori Rd"          # one property, with reasons and sales
 
-# with a DeepSeek API key
-#   PowerShell:   $env:DEEPSEEK_API_KEY = "..."
-#   cmd:          set DEEPSEEK_API_KEY=...
-#   bash:         export DEEPSEEK_API_KEY=...
+# with a DeepSeek API key: copy .env.example to .env and paste the key there
+# (.env is git-ignored), or set DEEPSEEK_API_KEY in your shell
 python -m reconcile evaluate --llm
 python -m reconcile history "88 Karori Rd" --llm
 python -m reconcile ask "When was it last sold and for how much?" --address "88 Karori Rd"
