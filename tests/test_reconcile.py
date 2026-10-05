@@ -159,10 +159,8 @@ class EnvFileTest(unittest.TestCase):
     def test_reads_key_and_skips_blanks_and_comments(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / ".env"
-            path.write_text('# comment
-TEST_RECONCILE_KEY="abc"
-TEST_RECONCILE_EMPTY=
-', encoding="utf-8")
+            path.write_text('# comment\nTEST_RECONCILE_KEY="abc"\nTEST_RECONCILE_EMPTY=\n',
+                            encoding="utf-8")
             with mock.patch.dict(os.environ, {}, clear=False):
                 os.environ.pop("TEST_RECONCILE_KEY", None)
                 llm.load_env_file(path)
