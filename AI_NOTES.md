@@ -7,7 +7,9 @@ Built with Claude Code (Anthropic's coding assistant) in October 2026. Kept as I
 
 I set the problem: messy property records from several sources, settled field by field, with a
 confidence level and a way to measure accuracy. The assistant wrote most of the first draft of the
-code, tests and synthetic data. I then read every file and ran everything before calling it mine.
+code, tests and synthetic data.
+
+<!-- Before submitting: read each file, run it, then replace this comment with what you checked. -->
 
 ## Where it helped
 
@@ -20,8 +22,8 @@ code, tests and synthetic data. I then read every file and ran everything before
 
 ## Where it didn't, or needed checking
 
-- **The first version of the rules got everything right on its own data,** which proved nothing. The
-  data was changed so the rules have real blind spots (stale council records whose problems are only
+- **The first rules considered would have got everything right on their own data,** which proves
+  nothing. The rules were kept simple and the data written so the rules have real blind spots (stale council records whose problems are only
   explained in free-text notes), which gives the model step something to do.
 - **The model has to be fenced in.** Left alone, a model will happily answer "130 m2" as a compromise
   between 120 and 138. `check_choice` only accepts values a source actually contains.
