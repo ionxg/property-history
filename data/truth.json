@@ -1,0 +1,45 @@
+{
+  "_note": "Hand-checked answer key for the synthetic records. Each value is what a careful person would accept after reading every source, with the reason.",
+  "12 kelburn parade": {
+    "bedrooms": [4, "Listing and recent valuer inspection agree; council record predates a conversion"],
+    "floor_area_m2": [138, "Valuer measured on site most recently"],
+    "land_area_m2": [450, "Council title area is authoritative for land"],
+    "year_built": [1925, "Council record"],
+    "last_sale_price": [890000, "Council and valuer agree"]
+  },
+  "2/14 aro street": {
+    "bedrooms": [2, "All sources agree"],
+    "floor_area_m2": [68, "Council and valuer agree; listing rounded up"],
+    "year_built": [1978, "Council and valuer agree"],
+    "last_sale_price": [615000, "Council records the settled price; valuer report was before settlement"]
+  },
+  "7 brooklyn road": {
+    "bedrooms": [3, "All sources agree"],
+    "land_area_m2": [600, "Council title area"],
+    "last_sale_price": [985000, "Valuer recorded a 2025 sale newer than the council roll"]
+  },
+  "45 oriental parade": {
+    "bedrooms": [2, "Council record; the listing's third bedroom is a study, not consented"],
+    "floor_area_m2": [95, "Both agree"],
+    "last_sale_price": [1150000, "Only council records it"]
+  },
+  "88 karori road": {
+    "bedrooms": [5, "Extension after the council roll; listing and valuer agree"],
+    "floor_area_m2": [192, "Valuer measured on site after the extension"],
+    "last_sale_price": [1320000, "2025 sale recorded by valuer, newer than council"]
+  },
+  "3 tinakori road": {
+    "bedrooms": [3, "All sources agree"],
+    "floor_area_m2": [105, "Council and valuer agree"],
+    "year_built": [1890, "Council record"],
+    "last_sale_price": [1040000, "Council and valuer agree"]
+  },
+  "21 rintoul street": {
+    "floor_area_m2": [100, "All sources agree"],
+    "last_sale_price": [820000, "Council records the settled price"]
+  },
+  "5/30 the terrace": {
+    "floor_area_m2": [48, "Council and valuer agree; listing included the balcony"],
+    "last_sale_price": [420000, "Council and valuer agree"]
+  }
+}

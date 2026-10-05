@@ -1,0 +1,24 @@
+record_id,source,recorded_on,address,bedrooms,floor_area_m2,land_area_m2,year_built,last_sale_date,last_sale_price,notes
+C001,council,2025-07-01,12 Kelburn Parade Kelburn Wellington,3,120,450,1925,2019-03-14,890000,
+L001,listing,2024-11-20,12 Kelburn Pde,4,135,450,1925,,,4 bedrooms after renovation.
+V001,valuer,2025-02-10,"12 Kelburn Parade, Kelburn",4,138,452,1926,2019-03-14,890000,Measured on site. Council floor area predates the 2023 rear extension (consented).
+C002,council,2025-07-01,2/14 Aro Street Aro Valley Wellington,2,68,,1978,2021-08-02,615000,
+L002,listing,2021-06-15,"Unit 2, 14 Aro St",2,70,,,,,
+V002,valuer,2021-07-20,2/14 Aro Street,2,68,,1978,2021-08-02,610000,Report written before settlement; final price may differ.
+C003,council,2025-07-01,7 Brooklyn Road Brooklyn Wellington,3,110,600,1960,2016-11-30,540000,
+L003,listing,2025-09-01,7 Brooklyn Rd,3,110,600,1960,,,
+V003,valuer,2025-09-12,7 Brooklyn Road,3,110,598,1960,2025-09-30,985000,
+C004,council,2025-07-01,45 Oriental Parade Oriental Bay Wellington,2,95,,2004,2018-05-21,1150000,
+L004,listing,2023-02-11,Apt 45 Oriental Pde,3,95,,2004,,,"Third bedroom is a study with no window, not consented as a bedroom."
+C005,council,2025-07-01,88 Karori Road Karori Wellington,4,160,700,1952,2012-04-03,480000,
+L005,listing,2025-03-18,88 Karori Rd,5,190,700,1952,,,Extended in 2024: new master suite and family room.
+V005,valuer,2025-04-02,"88 Karori Road, Karori",5,192,700,1952,2025-04-28,1320000,Measured on site after the 2024 extension. Council roll not yet updated.
+C006,council,2025-07-01,3 Tinakori Road Thorndon Wellington,3,105,310,1890,2020-10-09,1040000,
+V006,valuer,2020-09-25,3 Tinakori Rd,3,105,310,1895,2020-10-09,1040000,Year built is approximate from style; no permit records found.
+L006,listing,2020-08-30,"3 Tinakori Road, Thorndon",3,104,310,,,,
+C007,council,2025-07-01,21 Rintoul Street Newtown Wellington,3,100,350,1915,2022-02-17,820000,
+L007,listing,2022-01-10,21 Rintoul St,3,100,350,1915,,,
+V007,valuer,2022-01-28,21 Rintoul Street,3,100,350,1915,2022-02-17,805000,Valuation done before final price negotiation.
+C008,council,2025-07-01,5/30 The Terrace Wellington Central,1,48,,1999,2023-06-30,420000,
+L008,listing,2023-05-02,"Flat 5, 30 The Terrace",1,52,,1999,,,Floor area includes the 4 m2 balcony.
+V008,valuer,2023-06-01,5/30 The Terrace,1,48,,1999,2023-06-30,420000,
